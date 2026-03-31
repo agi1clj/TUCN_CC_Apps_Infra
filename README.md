@@ -10,6 +10,8 @@ The default path is intentionally simple:
 
 Remote state in Azure Blob Storage is documented only as an optional bonus for later.
 
+This infrastructure supports the companion application repository: [`TUCN_CC_Apps`](https://github.com/agi1clj/TUCN_CC_Apps).
+
 App deployment from `TUCN_CC_Apps` can still be automated separately. This repo no longer runs infra through CI/CD, but it can optionally create GitHub OIDC access so the app repo can refresh the Azure container images after each push.
 
 ## Tutorial flow
