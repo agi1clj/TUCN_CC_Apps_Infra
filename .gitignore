@@ -1,0 +1,24 @@
+# OpenTofu / Terraform state and cache
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+crash.*.log
+
+# Variable files with real values (never commit real secrets)
+*.tfvars
+!*.tfvars.example
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Scripts output
+scripts/*.log

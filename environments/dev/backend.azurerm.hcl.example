@@ -1,0 +1,4 @@
+resource_group_name  = "rg-tucn-cc-state"
+storage_account_name = "tucnccstateexample"
+container_name       = "tfstate"
+key                  = "dev.terraform.tfstate"

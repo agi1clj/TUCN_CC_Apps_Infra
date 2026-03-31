@@ -1,0 +1,56 @@
+project_name   = "tucn-cc"
+environment    = "dev"
+student_suffix = "agi"
+location       = "francecentral"
+
+vnet_address_space             = "10.0.0.0/16"
+app_service_subnet_prefix      = "10.0.1.0/24"
+private_endpoint_subnet_prefix = "10.0.2.0/24"
+
+app_service_plan_sku                   = "B1"
+frontend_public_network_access_enabled = true
+backend_public_network_access_enabled  = true
+storage_public_network_access_enabled  = true
+key_vault_public_network_access_enabled = true
+enable_frontend_private_endpoint       = false
+enable_backend_private_endpoint        = false
+
+# Student workshop default:
+# keep Storage and Key Vault private endpoints,
+# but keep all services publicly reachable/manageable from a student laptop.
+#
+# Advanced full-private variant:
+# enable_frontend_private_endpoint = true
+# enable_backend_private_endpoint  = true
+
+# Azure for Students subscriptions can restrict regions.
+# If apply fails with RequestDisallowedByAzure, inspect policy assignments:
+# az policy assignment list --query "[].{name:name, displayName:displayName, parameters:parameters}" -o json
+# Then set location to one of the policy-allowed region names, for example "francecentral".
+
+frontend_image_name = "your-dockerhub-username/tucn-cc-frontend"
+frontend_image_tag  = "sha-abc1234"
+
+backend_image_name = "your-dockerhub-username/tucn-cc-backend-api"
+backend_image_tag  = "sha-abc1234"
+
+# Docker Hub credentials are optional for public images.
+# Only set these if your registry or images require authentication.
+# dockerhub_username = "your-dockerhub-username"
+# dockerhub_password = "dckr_pat_xxxxxxxxxxxx"
+
+cognito_region       = "eu-central-1"
+cognito_user_pool_id = "eu-central-1_XXXXXXXXX"
+cognito_client_id    = "XXXXXXXXXXXXXXXXXXXXXXXXXX"
+cognito_domain       = "https://XXXXXXXXX.auth.eu-central-1.amazoncognito.com"
+
+cors_origin = "https://app-tucn-cc-dev.azurewebsites.net"
+
+log_level          = "info"
+log_retention_days = 30
+
+# Optional: enable only if you want GitHub Actions in TUCN_CC_Apps
+# to update the running Azure container apps after image publish.
+# create_github_oidc  = true
+# github_organization = "your-github-org"
+# github_repository   = "TUCN_CC_Apps"
