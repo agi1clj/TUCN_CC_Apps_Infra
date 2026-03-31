@@ -17,11 +17,12 @@ App deployment from `TUCN_CC_Apps` can still be automated separately. This repo 
 Work through the repository in this order:
 
 1. Read the [Architecture](#architecture) and [Network tutorial](#network-tutorial) sections.
-2. Authenticate to Azure.
-3. Fill in `environments/dev/terraform.tfvars`.
-4. Follow [Tutorial](#tutorial) to deploy the infrastructure.
-5. Use [Optional App Deploy Automation](#optional-app-deploy-automation) if you want pushes in `TUCN_CC_Apps` to update Azure automatically.
-6. Use [Tear down](#tear-down) when the environment is no longer needed.
+2. Complete the one-time provider setup in [Azure subscription note](#azure-subscription-note).
+3. Authenticate to Azure.
+4. Fill in `environments/dev/terraform.tfvars`.
+5. Follow [Tutorial](#tutorial) to deploy the infrastructure.
+6. Use [Optional App Deploy Automation](#optional-app-deploy-automation) if you want pushes in `TUCN_CC_Apps` to update Azure automatically.
+7. Use [Tear down](#tear-down) when the environment is no longer needed.
 
 ## Quick Start
 
@@ -30,9 +31,10 @@ Use this repository as the **first half** of the deployment tutorial.
 The intended learning path is:
 
 1. Read [Architecture](#architecture) and [Network tutorial](#network-tutorial).
-2. Complete [Phase 1: Deploy the infrastructure](#phase-1-deploy-the-infrastructure).
-3. Complete [Phase 2: Configure `TUCN_CC_Apps` for push-to-deploy](#phase-2-configure-tucn_cc_apps-for-push-to-deploy).
-4. Complete [Phase 3: Verify the app deployment path](#phase-3-verify-the-app-deployment-path).
+2. Complete the one-time provider setup in [Azure subscription note](#azure-subscription-note).
+3. Complete [Phase 1: Deploy the infrastructure](#phase-1-deploy-the-infrastructure).
+4. Complete [Phase 2: Configure `TUCN_CC_Apps` for push-to-deploy](#phase-2-configure-tucn_cc_apps-for-push-to-deploy).
+5. Complete [Phase 3: Verify the app deployment path](#phase-3-verify-the-app-deployment-path).
 
 Follow the sections below in order and ignore the appendix-style material until the basic flow is working.
 
@@ -40,13 +42,15 @@ Follow the sections below in order and ignore the appendix-style material until 
 
 ### Phase 1: Deploy the infrastructure
 
-1. Copy the variables file:
+1. Register the required Azure providers once by following [Azure subscription note](#azure-subscription-note).
+
+2. Copy the variables file:
 
 ```bash
 cp environments/dev/terraform.tfvars.example environments/dev/terraform.tfvars
 ```
 
-2. Fill in at least:
+3. Fill in at least:
 
 - `student_suffix`
 - `frontend_image_name`
@@ -59,14 +63,14 @@ cp environments/dev/terraform.tfvars.example environments/dev/terraform.tfvars
 - `cognito_domain`
 - `cors_origin` (placeholder is fine for the first apply)
 
-3. Authenticate to Azure:
+4. Authenticate to Azure:
 
 ```bash
 az login --use-device-code
 az account set --subscription "<your-subscription-id>"
 ```
 
-4. Initialize, plan, and apply:
+5. Initialize, plan, and apply:
 
 ```bash
 ./scripts/dev-init.sh
@@ -74,7 +78,7 @@ az account set --subscription "<your-subscription-id>"
 ./scripts/dev-apply.sh
 ```
 
-5. Read the outputs:
+6. Read the outputs:
 
 ```bash
 cd environments/dev
@@ -86,7 +90,7 @@ tofu output app_service_name
 tofu output function_app_name
 ```
 
-6. Update `cors_origin` in `terraform.tfvars` to the real frontend URL and re-apply:
+7. Update `cors_origin` in `terraform.tfvars` to the real frontend URL and re-apply:
 
 ```hcl
 cors_origin = "https://app-tucn-cc-dev-<suffix>.azurewebsites.net"
