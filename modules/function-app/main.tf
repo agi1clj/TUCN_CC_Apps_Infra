@@ -46,6 +46,9 @@ resource "azurerm_linux_function_app" "backend" {
     CORS_ORIGIN          = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=cors-origin)"
     LOG_LEVEL            = "@Microsoft.KeyVault(VaultName=${var.key_vault_name};SecretName=log-level)"
 
+    STORAGE_ACCOUNT_NAME      = var.storage_account_name
+    DATASETS_CONTAINER_NAME   = var.datasets_container_name
+
     APPLICATIONINSIGHTS_CONNECTION_STRING = var.app_insights_connection_string
     WEBSITES_ENABLE_APP_SERVICE_STORAGE   = "false"
     DOCKER_ENABLE_CI                      = "true"

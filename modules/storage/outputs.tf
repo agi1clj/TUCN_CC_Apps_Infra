@@ -28,3 +28,8 @@ output "storage_primary_blob_endpoint" {
   description = "Blob service endpoint URL (private DNS resolves this inside VNet)."
   value       = azurerm_storage_account.main.primary_blob_endpoint
 }
+
+output "datasets_container_name" {
+  description = "Name of the blob container used for CSV dataset uploads."
+  value       = azurerm_storage_container.datasets.name
+}

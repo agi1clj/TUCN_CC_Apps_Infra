@@ -92,6 +92,12 @@ variable "backend_image_tag" {
   description = "Image tag to deploy (e.g. 'sha-abc1234')."
 }
 
+variable "datasets_container_name" {
+  type        = string
+  description = "Name of the blob container where CSV datasets are uploaded."
+  default     = "datasets"
+}
+
 variable "public_network_access_enabled" {
   type        = bool
   description = "Enables public ingress for the backend Function App."

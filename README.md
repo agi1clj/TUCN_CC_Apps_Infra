@@ -578,6 +578,7 @@ Check that the plan creates:
 - one virtual network
 - two subnets
 - one storage account
+- one blob container (`datasets`) inside that storage account
 - one key vault
 - one shared Linux App Service Plan
 - one frontend App Service
@@ -635,6 +636,8 @@ In the Azure portal, check:
 4. App Service and Function App: containers are configured from Docker Hub.
 5. Key Vault: public network access is enabled in the default mode.
 6. Storage Account: public network access is enabled in the default mode.
+7. Storage Account → Containers: a container named `datasets` exists.
+8. Function App → Configuration: `STORAGE_ACCOUNT_NAME` and `DATASETS_CONTAINER_NAME` are present in the application settings.
 
 ## Updating container images
 
@@ -732,6 +735,73 @@ az group delete --name rg-tucn-cc-dev-agi --yes --no-wait
 
 
 
+## Dataset blob container
+
+The storage module provisions a private blob container named `datasets` inside the same storage account used by the Function App runtime.
+
+> **If you already deployed the infrastructure before this feature was added**, run `tofu apply` again from `environments/dev/` to create the container and update the Function App environment variables. No variable changes are required — the defaults are applied automatically.
+
+Two environment variables are injected into the Function App automatically:
+
+| Variable | Value |
+|----------|-------|
+| `STORAGE_ACCOUNT_NAME` | Name of the storage account (e.g. `sttucnccdevagi3x7k2f`) |
+| `DATASETS_CONTAINER_NAME` | `datasets` |
+
+The managed identity already holds `Storage Blob Data Owner` on the storage account. No connection string or secret is needed.
+
+### Uploading a CSV
+
+Use the Azure Portal — no CLI auth or key needed:
+
+1. Go to the Azure Portal → **Storage accounts** → `<STORAGE_ACCOUNT_NAME>`.
+2. Click **Containers** in the left menu.
+3. Click the **`datasets`** container.
+4. Click **Upload** → select your `.csv` file → click **Upload**.
+
+### Reading the CSV in Function App code (Node.js)
+
+Install the required packages in `TUCN_CC_Apps`:
+
+```bash
+npm install @azure/storage-blob @azure/identity
+```
+
+Then in your function:
+
+```js
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { DefaultAzureCredential } = require("@azure/identity");
+
+async function readDatasetCsv(blobName) {
+  const accountName = process.env.STORAGE_ACCOUNT_NAME;
+  const containerName = process.env.DATASETS_CONTAINER_NAME;
+
+  const client = new BlobServiceClient(
+    `https://${accountName}.blob.core.windows.net`,
+    new DefaultAzureCredential()
+  );
+
+  const containerClient = client.getContainerClient(containerName);
+  const blobClient = containerClient.getBlobClient(blobName);
+
+  const downloadResponse = await blobClient.download();
+  const chunks = [];
+  for await (const chunk of downloadResponse.readableStreamBody) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString("utf-8");
+}
+```
+
+`DefaultAzureCredential` picks up `AZURE_CLIENT_ID` automatically, so it uses the user-assigned managed identity without any extra configuration.
+
+### Why managed identity and not a connection string
+
+- No secret to rotate or leak.
+- `Storage Blob Data Owner` is already assigned by the storage module — no manual portal steps.
+- Works inside the VNet: the Function App reaches the storage account through the private endpoint.
+
 ## Secrets management reference
 
 | Secret | Where stored | How accessed |
@@ -739,5 +809,6 @@ az group delete --name rg-tucn-cc-dev-agi --yes --no-wait
 | Cognito User Pool ID | Azure Key Vault | `@Microsoft.KeyVault(...)` in Function App app settings |
 | Cognito Client ID | Azure Key Vault | same |
 | CORS origin | Azure Key Vault | same |
-| Storage access key | OpenTofu state (sensitive) | directly in `azurerm_linux_function_app.storage_account_access_key` |
+| Storage access key (runtime host) | OpenTofu state (sensitive) | directly in `azurerm_linux_function_app.storage_account_access_key` — used by the Functions host, not by application code |
+| Dataset blob access | managed identity (`Storage Blob Data Owner` RBAC) | `DefaultAzureCredential` in function code — no key or secret needed |
 | Docker Hub PAT | GitHub Secret or local env var, only if images are private | not required for public images |

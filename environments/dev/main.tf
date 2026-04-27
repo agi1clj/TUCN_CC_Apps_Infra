@@ -155,6 +155,7 @@ module "function_app" {
   private_dns_zone_web_id        = module.networking.private_dns_zone_web_id
   storage_account_name           = module.storage.storage_account_name
   storage_account_access_key     = module.storage.storage_account_primary_access_key
+  datasets_container_name        = module.storage.datasets_container_name
   managed_identity_id            = module.identity.managed_identity_id
   managed_identity_client_id     = module.identity.managed_identity_client_id
   key_vault_name                 = module.key_vault.key_vault_name

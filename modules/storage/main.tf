@@ -62,6 +62,12 @@ resource "azurerm_private_endpoint" "file" {
   tags = var.tags
 }
 
+resource "azurerm_storage_container" "datasets" {
+  name                  = "datasets"
+  storage_account_id    = azurerm_storage_account.main.id
+  container_access_type = "private"
+}
+
 resource "azurerm_role_assignment" "blob_owner" {
   scope                = azurerm_storage_account.main.id
   role_definition_name = "Storage Blob Data Owner"
